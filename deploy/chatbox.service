@@ -1,0 +1,71 @@
+# chatbox.service — Primary launch unit for the Chatbox kiosk app.
+#
+# Runs on tty1 with direct framebuffer access. Restarts automatically
+# on crash. No getty or auto-login needed.
+#
+# Music (docs/player-spec.md §4, §9): the kiosk spawns mpv as its child, so
+# mpv runs as chatbox too, with its IPC socket in RuntimeDirectory
+# (/run/chatbox/mpv.sock, mode 0700: only chatbox can drive the player).
+# The library DB and art thumbnails live in StateDirectory
+# (/var/lib/chatbox), written by chatbox-indexer.service and read here.
+# mpv reaches chatbox's PipeWire because the player sets
+# XDG_RUNTIME_DIR=/run/user/<uid> for it (a system unit has none).
+# There is deliberately no dependency on user@<uid>.service / PipeWire:
+# chat must never wait for audio. setup-pi-system.sh adds a drop-in that
+# only orders us after user-runtime-dir@<uid>.service (instant, creates
+# /run/user/<uid>); if PipeWire is late or down, the player keeps retrying
+# (mpv respawn backoff, and an audio-output error pauses until next play).
+#
+# Install: sudo systemctl enable chatbox.service
+#          sudo systemctl start chatbox.service
+
+[Unit]
+Description=Chatbox Kiosk
+After=network-online.target
+Wants=network-online.target
+# Take over tty1 from getty
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+ConditionPathExists=/usr/local/bin/chatbox
+ConditionPathExists=/etc/chatbox.conf
+
+[Service]
+Type=simple
+User=chatbox
+Group=chatbox
+WorkingDirectory=/home/chatbox
+
+# Run on tty1 so LVGL can use the framebuffer and keyboard
+TTYPath=/dev/tty1
+StandardInput=tty
+# LVGL log uses printf → stdout, so capture both into the same file as stderr
+StandardOutput=append:/var/log/chatbox.err
+StandardError=append:/var/log/chatbox.err
+
+# Switch console to graphics mode before starting
+ExecStartPre=/usr/bin/chvt 1
+ExecStartPre=-/bin/setterm --blank 0 --powerdown 0 --term linux </dev/tty1
+
+ExecStart=/usr/local/bin/chatbox /etc/chatbox.conf
+
+# Restart on crash
+Restart=on-failure
+RestartSec=3
+
+Environment=HOME=/home/chatbox
+SupplementaryGroups=input video render
+
+# /run/chatbox (mpv.sock) — recreated on every start, removed on stop
+RuntimeDirectory=chatbox
+RuntimeDirectoryMode=0700
+# /var/lib/chatbox (library.db, art/) — shared with chatbox-indexer.service
+StateDirectory=chatbox
+StateDirectoryMode=0755
+
+TimeoutStartSec=30
+TimeoutStopSec=5
+KillSignal=SIGTERM
+SendSIGKILL=yes
+
+[Install]
+WantedBy=multi-user.target

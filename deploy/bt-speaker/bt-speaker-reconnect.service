@@ -1,0 +1,22 @@
+# systemd *user* unit for the chatbox user:
+#   ~chatbox/.config/systemd/user/bt-speaker-reconnect.service
+# Needs linger (loginctl enable-linger chatbox) so it runs headless, and
+# chatbox in group `bluetooth` so bluetoothctl may talk to bluez.
+# Installed by deploy/bt-speaker/install.sh (called from setup-pi-system.sh).
+[Unit]
+Description=Keep the Bluetooth speaker connected
+After=wireplumber.service
+Wants=wireplumber.service
+
+[Service]
+# Your speaker's Bluetooth address (`bluetoothctl devices`). Pair and trust it
+# on the Pi first; then re-run install.sh.
+Environment=BT_SPEAKER_MAC=00:00:00:00:00:00
+Environment=BT_SPEAKER_INTERVAL=20
+Environment=BT_SPEAKER_VOLUME=0.8
+ExecStart=%h/.local/bin/bt-speaker-reconnect
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

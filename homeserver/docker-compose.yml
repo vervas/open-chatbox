@@ -1,0 +1,17 @@
+# Synapse for chatbox. See docs/homeserver.md.
+#
+# Synapse speaks plain HTTP on the host's loopback only. Put a reverse proxy
+# that terminates TLS in front of it (Caddy, nginx, ...), e.g.
+#   https://matrix.example.org  ->  http://127.0.0.1:8008
+# Caddyfile.example next to this file is a complete Caddy config.
+# SYNAPSE_PORT changes the host port (default 8008).
+services:
+  synapse:
+    image: docker.io/matrixdotorg/synapse:latest
+    restart: unless-stopped
+    environment:
+      - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
+    volumes:
+      - ./files:/data
+    ports:
+      - "127.0.0.1:${SYNAPSE_PORT:-8008}:8008"

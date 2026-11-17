@@ -1,0 +1,71 @@
+# Chatbox configuration file
+# Copy to /etc/chatbox.conf and edit with your values.
+# Full reference: docs/configuration.md
+#
+# The kiosk reads this file on startup (or the path given as argv[1]).
+# Only whole lines starting with # are comments (no inline comments);
+# blank lines are ignored. Every key below must come BEFORE [contacts].
+
+# ---------------------------------------------------------------------------
+# Matrix homeserver connection (required)
+# homeserver_url: the HTTPS URL of your homeserver (behind its TLS proxy)
+# access_token:   the kiosk account's token (docs/homeserver.md)
+# ---------------------------------------------------------------------------
+homeserver_url = https://matrix.example.org
+access_token = your_matrix_access_token_here
+
+# ---------------------------------------------------------------------------
+# Display sleep (optional — defaults shown)
+# sleep_lock_secs: idle seconds before the dark lock screen appears
+# sleep_off_secs:  seconds on lock screen before the display powers off
+# ---------------------------------------------------------------------------
+# sleep_lock_secs = 60
+# sleep_off_secs = 300
+
+# ---------------------------------------------------------------------------
+# Music (all optional; defaults shown).
+# music_volume_max: parent-set cap in percent (0-100)
+# music_volume_default: volume at boot, clamped to music_volume_max
+# default_app: shown at boot: chat, music or home (the switcher, over chat)
+# ---------------------------------------------------------------------------
+music_dir = /srv/music
+music_db = /var/lib/chatbox/library.db
+music_art_dir = /var/lib/chatbox/art
+music_volume_max = 70
+music_volume_default = 40
+default_app = chat
+
+# ---------------------------------------------------------------------------
+# Photos (optional; defaults shown).
+# photos_dir: photos sent in the chat are saved here; the Photos app shows
+#             (and can delete) what is in it. Owned by the chatbox user.
+# sleep_photo_viewer_mins: while a photo is open full screen, the screen
+#             locks after this many idle minutes instead of sleep_lock_secs
+#             (0 = no difference). Whole minutes, 0-1440.
+# ---------------------------------------------------------------------------
+photos_dir = /srv/photos
+sleep_photo_viewer_mins = 20
+
+# ---------------------------------------------------------------------------
+# Contacts (up to 10). homeserver/setup-matrix-rooms.sh creates the rooms
+# and prints these lines.
+#   contact.N.name    = name shown on the kiosk
+#   contact.N.room_id = the Matrix room shared with that person
+#   contact.N.avatar  = mum   -> /usr/share/chatbox/avatars/mum.png (optional)
+#   contact.N.lang    = gr | fr  typing language for that chat (optional):
+#                       gr loads the Greek keyboard layout; ` then a vowel
+#                       accents it (gr: ά έ ή ί ό ύ ώ, fr: á é í ó ú);
+#                       `` then a vowel gives the grave (fr: à è ì ò ù)
+# The short form "Name = !roomid:server" works too (no avatar or lang).
+# ---------------------------------------------------------------------------
+[contacts]
+contact.1.name = Mum
+contact.1.room_id = !abcdef:matrix.example.org
+contact.1.avatar = mum
+
+contact.2.name = Dad
+contact.2.room_id = !ghijkl:matrix.example.org
+contact.2.avatar = dad
+
+contact.3.name = Grandma
+contact.3.room_id = !mnopqr:matrix.example.org

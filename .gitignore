@@ -1,0 +1,35 @@
+# Build artifacts
+pi/build/
+pi/build-native/
+pi/build-mac/
+pi/build-docker/
+*.o
+*.a
+
+# Environment
+.env
+
+# Editor files
+.vscode/
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Docker
+.docker/
+
+# Screenshots
+/screenshots/
+
+# Custom avatar images (deployed separately, not committed)
+avatars/
+
+# Config pulled from the Pi for local runs
+pi-local/

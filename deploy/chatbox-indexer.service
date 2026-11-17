@@ -1,0 +1,67 @@
+# chatbox-indexer.service — music library indexer (docs/player-spec.md §3, §4).
+#
+# Scans music_dir (/srv/music), watches it with inotify (5 s debounce, full
+# rescan every 30 min) and writes the SQLite library + art thumbnails that the
+# kiosk (chatbox.service) reads. Same user as the kiosk (D6), same
+# StateDirectory, so the WAL -shm file and art/ are shared without any
+# cross-user permissions. Spawns ffprobe/ffmpeg per new or changed file.
+#
+# Low CPU and IO priority: a rescan must never jank the UI on the Pi.
+# Logs go to the journal:  journalctl -u chatbox-indexer -f
+#
+# Install: deploy-to-pi.sh installs the binary and this unit;
+#          setup-pi-system.sh enables it.
+
+[Unit]
+Description=Chatbox music library indexer
+After=local-fs.target
+ConditionPathExists=/usr/local/bin/chatbox-indexer
+ConditionPathExists=/etc/chatbox.conf
+
+[Service]
+Type=simple
+User=chatbox
+Group=chatbox
+ExecStart=/usr/local/bin/chatbox-indexer --config /etc/chatbox.conf
+Restart=on-failure
+RestartSec=10
+
+# /var/lib/chatbox (library.db, -wal/-shm, art/) — shared with chatbox.service
+StateDirectory=chatbox
+StateDirectoryMode=0755
+
+# Be nice to the UI: batch CPU class at low priority, idle IO class.
+Nice=15
+CPUSchedulingPolicy=batch
+IOSchedulingClass=idle
+
+# Hardening. Read-only view of the OS; writable only StateDirectory (implicit)
+# and a private /tmp. The music is read-only to the indexer ('-': don't
+# fail if /srv/music is missing, the indexer just finds no music).
+# Nothing here blocks fork/exec of ffprobe/ffmpeg or inotify.
+# ProtectHome hides /home: keep music_dir outside it (the default is fine).
+ProtectSystem=strict
+ReadOnlyPaths=-/srv/music
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX
+PrivateNetwork=true
+CapabilityBoundingSet=
+ProtectClock=true
+ProtectHostname=true
+ProtectKernelLogs=true
+RestrictNamespaces=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

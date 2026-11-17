@@ -1,0 +1,50 @@
+# Containers build into pi/build-docker, never pi/build or pi/build-native:
+# those usually hold a macOS CMake cache, which a Linux cmake refuses to reuse.
+x-app: &app
+  build: ./docker
+  volumes:
+    - .:/app
+
+services:
+  mock:
+    <<: *app
+    command: python3 /app/docker/mock_server/server.py
+    ports:
+      - "8008:8008"
+
+  build:
+    <<: *app
+    command: bash -c "cd /app/pi && mkdir -p build-docker && cd build-docker && cmake .. -DCHATBOX_BACKEND=SDL2 && make -j$(nproc) && echo 'Build complete'"
+
+  # Build + every unit test + the e2e script against the mock server.
+  test:
+    <<: *app
+    command: bash /app/test/test_docker.sh
+    environment:
+      - SDL_VIDEODRIVER=dummy
+      - CHATBOX_MPV_SOCKET=/tmp/chatbox-mpv.sock
+    depends_on:
+      - mock
+
+  test-config:
+    <<: *app
+    command: /app/pi/build-docker/test_config /app/test/fixtures/chatbox.conf
+
+  test-api:
+    <<: *app
+    command: /app/pi/build-docker/test_api http://mock:8008 test_token_123
+    depends_on:
+      - mock
+
+  test-keyboard:
+    <<: *app
+    command: /app/pi/build-docker/test_keyboard /app/test/fixtures/chatbox.conf
+
+  e2e:
+    <<: *app
+    command: bash /app/test/test_e2e_docker.sh
+    environment:
+      - SDL_VIDEODRIVER=dummy
+      - CHATBOX_MPV_SOCKET=/tmp/chatbox-mpv.sock
+    depends_on:
+      - mock

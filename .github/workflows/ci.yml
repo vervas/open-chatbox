@@ -1,0 +1,51 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake pkg-config libsdl2-dev libcurl4-openssl-dev libjpeg-dev libpng-dev
+
+      - name: Run tests
+        run: make test 2> test-output.txt; echo "EXIT_CODE=$?" >> "$GITHUB_ENV"; cat test-output.txt >&2
+
+      - name: Report results
+        if: always()
+        run: |
+          passed=$(grep -c '^\[PASS\]' test-output.txt || true)
+          failed=$(grep -c '^\[FAIL\]' test-output.txt || true)
+          total=$((passed + failed))
+
+          # Job summary
+          {
+            echo "## Test Results"
+            echo ""
+            if [ "$failed" -eq 0 ]; then
+              echo "**$total tests, all passed**"
+            else
+              echo "**$total tests: $passed passed, $failed failed**"
+            fi
+            echo ""
+            echo "| Status | Test |"
+            echo "|--------|------|"
+            grep '^\[PASS\]' test-output.txt | sed 's/^\[PASS\] /| :white_check_mark: | /' | sed 's/$/ |/' || true
+            grep '^\[FAIL\]' test-output.txt | sed 's/^\[FAIL\] /| :x: | /' | sed 's/$/ |/' || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Inline annotations for failures
+          grep '^\[FAIL\]' test-output.txt | while IFS= read -r line; do
+            msg="${line#\[FAIL\] }"
+            echo "::error file=pi/src/test_keyboard.c::$msg"
+          done || true
+
+          exit "$EXIT_CODE"

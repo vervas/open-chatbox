@@ -1,0 +1,6 @@
+[submodule "pi/lib/lvgl"]
+	path = pi/lib/lvgl
+	url = https://github.com/lvgl/lvgl.git
+[submodule "pi/lib/cJSON"]
+	path = pi/lib/cJSON
+	url = https://github.com/DaveGamble/cJSON.git

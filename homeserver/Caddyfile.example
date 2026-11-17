@@ -1,0 +1,7 @@
+# Caddy in front of Synapse: TLS with an automatic Let's Encrypt certificate.
+# The name must resolve to this machine and ports 80/443 must reach it.
+# Replace matrix.example.org with your homeserver's name (SERVER_NAME).
+matrix.example.org {
+	reverse_proxy /_matrix/* 127.0.0.1:8008
+	reverse_proxy /_synapse/client/* 127.0.0.1:8008
+}
