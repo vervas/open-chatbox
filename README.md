@@ -111,4 +111,8 @@ Dependencies and every build target (Raspberry Pi framebuffer, other Linux machi
 
 - [LVGL](https://github.com/lvgl/lvgl) (MIT) and [cJSON](https://github.com/DaveGamble/cJSON) (MIT), as git submodules.
 - Emoji: [Twemoji](https://github.com/jdecked/twemoji) graphics, © Twitter, Inc. and other contributors, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); resized to 48×48 PNGs in `pi/src/assets/emoji/` ([deploy/download-twemoji.sh](deploy/download-twemoji.sh)).
-- Fonts (bitmaps generated with [lv_font_conv](https://github.com/lvgl/lv_font_conv)): [Didact Gothic](https://fonts.google.com/specimen/Didact+Gothic) and [M PLUS Rounded 1c](https://fonts.google.com/specimen/M+PLUS+Rounded+1c), SIL Open Font License 1.1 (licences in `pi/fonts/`); [DejaVu Sans](https://dejavu-fonts.github.io) for a few glyphs (Bitstream Vera / DejaVu licence); [Font Awesome](https://fontawesome.com) Free icons (SIL OFL 1.1), from LVGL's bundled fonts.
+- Fonts (bitmaps generated with [lv_font_conv](https://github.com/lvgl/lv_font_conv)): [Didact Gothic](https://fonts.google.com/specimen/Didact+Gothic) and [M PLUS Rounded 1c](https://fonts.google.com/specimen/M+PLUS+Rounded+1c), SIL Open Font License 1.1; [DejaVu Sans](https://dejavu-fonts.github.io) for a few glyphs (Bitstream Vera / DejaVu licence); [Font Awesome](https://fontawesome.com) Free icons (SIL OFL 1.1), from LVGL's bundled fonts. All their licences are in `pi/fonts/`.
+
+## Licence
+
+Chatbox is free software under the [GNU General Public License v3.0](LICENSE). The font files generated from the fonts above (`pi/src/font_*.c`) stay under their fonts' licences (`pi/fonts/`), and the emoji under CC BY 4.0.
