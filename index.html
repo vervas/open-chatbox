@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chatbox demo</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { width: 100%; height: 100%; object-fit: contain; outline: none; display: block; }
+  #status { position: absolute; color: #aaa; font: 14px sans-serif; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="status">Loading…</div>
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<script src="index.data.js"></script>
+<script>
+  var statusEl = document.getElementById('status');
+  var canvas = document.getElementById('canvas');
+  canvas.addEventListener('mousedown', function () { canvas.focus(); });
+  // While the demo has the keyboard, arrows, Tab and PgUp/PgDn drive the kiosk.
+  (function () {
+    var keys = { Tab:1, ArrowUp:1, ArrowDown:1, ArrowLeft:1, ArrowRight:1,
+                 PageUp:1, PageDown:1, Backspace:1, F2:1, Home:1, End:1 };
+    window.addEventListener('keydown', function (e) { if (keys[e.key]) e.preventDefault(); }, true);
+    window.addEventListener('keypress', function (e) { if (e.key === ' ') e.preventDefault(); }, true);
+  })();
+  var Module = {
+    canvas: canvas,
+getPreloadedPackage: function () {
+  var bin = atob(window.__INDEX_DATA), n = bin.length, u = new Uint8Array(n);
+  for (var i = 0; i < n; i++) u[i] = bin.charCodeAt(i);
+  window.__INDEX_DATA = null;
+  return u.buffer;
+},
+    print: function () {},
+    printErr: function () {},
+    setStatus: function (t) { statusEl.textContent = t; statusEl.style.display = t ? '' : 'none'; },
+    onRuntimeInitialized: function () { statusEl.style.display = 'none'; canvas.focus(); }
+  };
+</script>
+<script src="index.js"></script>
+</body>
+</html>
