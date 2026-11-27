@@ -6,14 +6,20 @@
 <title>Chatbox demo</title>
 <style>
   html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
-  body { display: flex; align-items: center; justify-content: center; }
+  body { display: flex; flex-direction: column; }
+  main { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; }
   canvas { width: 100%; height: 100%; object-fit: contain; outline: none; display: block; }
   #status { position: absolute; color: #aaa; font: 14px sans-serif; pointer-events: none; }
+  footer { padding: 10px 16px 12px; color: #fff; font: 14px/1.4 system-ui, sans-serif; text-align: center; }
+  footer a { color: #fff; }
 </style>
 </head>
 <body>
+<main>
 <div id="status">Loading…</div>
 <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+</main>
+<footer>This is a fake chat: the contacts and replies are made up. Nothing you type leaves this page, to any service or LLM. <a href="https://github.com/vervas/open-chatbox">Source code</a></footer>
 <script src="index.data.js"></script>
 <script>
   var statusEl = document.getElementById('status');
